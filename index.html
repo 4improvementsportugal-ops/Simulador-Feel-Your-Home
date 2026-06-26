@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Simulador de Troca de Casa – Feel Your Home. Descubra em menos de 3 minutos se está pronto para avançar.">
+  <title>Simulador de Troca de Casa | Feel Your Home</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Meta Pixel -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init','PIXEL_ID_FYH');
+    fbq('track','PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=PIXEL_ID_FYH&ev=PageView&noscript=1" aria-hidden="true"/></noscript>
+
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --preto:#000000;
+      --branco:#FFFFFF;
+      --texto:#1A1A1A;
+      --cinza-f:#F7F7F7;
+      --cinza-b:#E5E5E5;
+      --cinza-t:#6B6B6B;
+      --erro:#C0392B;
+      --fs:'Playfair Display',Georgia,serif;
+      --fn:'Inter',system-ui,sans-serif;
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:var(--fn);background:var(--branco);color:var(--texto);min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+    /* ── HERO ─────────────────────────────────────────── */
+    .hero{
+      min-height:100vh;background:var(--preto);color:var(--branco);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:56px 24px 72px;text-align:center;position:relative;overflow:hidden;
+    }
+    .hero::before{
+      content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+      background:radial-gradient(ellipse at 50% 0%,rgba(255,255,255,0.04) 0%,transparent 70%);
+      pointer-events:none;
+    }
+    .hero-brand{
+      font-family:var(--fs);font-size:11px;letter-spacing:5px;
+      text-transform:uppercase;opacity:0.45;margin-bottom:72px;
+      position:relative;
+    }
+    .hero-content{max-width:580px;width:100%;position:relative}
+    .hero-title{
+      font-family:var(--fs);font-size:clamp(26px,5.5vw,48px);font-weight:700;
+      line-height:1.18;margin-bottom:22px;letter-spacing:-0.5px;
+    }
+    .hero-title em{font-weight:400;font-style:italic}
+    .hero-sub{
+      font-size:clamp(14px,2.4vw,16px);font-weight:300;line-height:1.8;
+      opacity:0.7;margin-bottom:48px;max-width:480px;margin-left:auto;margin-right:auto;
+    }
+    .hero-btn{
+      display:inline-flex;align-items:center;gap:12px;
+      background:var(--branco);color:var(--preto);
+      font-family:var(--fn);font-size:12px;font-weight:600;
+      letter-spacing:2.5px;text-transform:uppercase;
+      border:none;padding:18px 48px;cursor:pointer;
+      transition:opacity .2s ease;margin-bottom:56px;
+    }
+    .hero-btn:hover{opacity:.88}
+    .hero-selos{
+      display:flex;flex-wrap:wrap;justify-content:center;
+      gap:6px 18px;font-size:11px;letter-spacing:1px;
+      text-transform:uppercase;opacity:0.38;
+    }
+    .hero-selos span{display:flex;align-items:center;gap:6px}
+    .hero-selos .sep{opacity:.35}
+
+    /* ── QUIZ WRAPPER ──────────────────────────────────── */
+    .qw{display:none;background:var(--branco);min-height:100vh}
+    .qw.on{display:block}
+
+    /* ── HEADER STICKY ─────────────────────────────────── */
+    .qhd{position:sticky;top:0;z-index:100;background:var(--preto)}
+    .qhd-inner{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:14px 24px;
+    }
+    .qhd-brand{
+      font-family:var(--fs);font-size:11px;letter-spacing:4px;
+      text-transform:uppercase;color:var(--branco);opacity:0.55;
+    }
+    .qhd-step{
+      font-size:11px;font-weight:500;letter-spacing:1.5px;
+      color:var(--branco);opacity:0.45;text-transform:uppercase;
+    }
+    .prog-track{height:2px;background:rgba(255,255,255,0.1)}
+    .prog-fill{height:2px;background:var(--branco);transition:width .45s ease}
+
+    /* ── PASSO ─────────────────────────────────────────── */
+    .step{display:none;padding:40px 24px 88px;max-width:580px;margin:0 auto;animation:fIn .3s ease}
+    .step.on{display:block}
+    @keyframes fIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+    .step-h{font-family:var(--fs);font-size:clamp(22px,4.5vw,30px);font-weight:700;margin-bottom:8px;line-height:1.2;color:var(--texto)}
+    .step-sub{font-size:13px;color:var(--cinza-t);margin-bottom:36px;line-height:1.65}
+
+    /* ── CAMPO ─────────────────────────────────────────── */
+    .cg{margin-bottom:28px}
+    .lbl{display:block;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--texto);margin-bottom:10px}
+
+    /* Card grid */
+    .cgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+    .cgrid.c4{grid-template-columns:repeat(2,1fr)}
+    @media(min-width:460px){.cgrid.c4{grid-template-columns:repeat(4,1fr)}}
+
+    .opc{
+      display:flex;align-items:center;justify-content:center;text-align:center;
+      padding:14px 8px;border:1.5px solid var(--cinza-b);
+      font-size:13px;font-weight:400;color:var(--texto);
+      cursor:pointer;transition:border-color .18s,background .18s,color .18s;
+      background:var(--branco);min-height:52px;user-select:none;line-height:1.3;
+    }
+    .opc:hover{border-color:#999}
+    .opc.sel{background:var(--preto);color:var(--branco);border-color:var(--preto)}
+    .opc.sp{grid-column:1/-1}
+
+    /* Input / Select */
+    .inp,.sfl{
+      width:100%;padding:14px 16px;border:1.5px solid var(--cinza-b);
+      font-family:var(--fn);font-size:15px;color:var(--texto);
+      background:var(--branco);outline:none;transition:border-color .18s;
+      -webkit-appearance:none;border-radius:0;
+    }
+    .inp:focus,.sfl:focus{border-color:var(--preto)}
+    .inp.er,.sfl.er{border-color:var(--erro)}
+    .sfl{
+      appearance:none;cursor:pointer;padding-right:44px;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231A1A1A' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 16px center;
+    }
+
+    /* Erro */
+    .emsg{display:none;font-size:12px;color:var(--erro);margin-top:6px}
+    .emsg.on{display:block}
+
+    /* Ocultar condicionais */
+    .hid{display:none!important}
+
+    /* ── BOTÕES NAV ────────────────────────────────────── */
+    .nav{display:flex;align-items:center;gap:10px;margin-top:44px}
+    .btn-b{
+      padding:14px 18px;border:1.5px solid var(--cinza-b);background:transparent;
+      font-family:var(--fn);font-size:13px;color:var(--cinza-t);cursor:pointer;
+      transition:all .18s;white-space:nowrap;
+    }
+    .btn-b:hover{border-color:var(--texto);color:var(--texto)}
+    .btn-n{
+      flex:1;padding:16px 24px;background:var(--preto);color:var(--branco);border:none;
+      font-family:var(--fn);font-size:13px;font-weight:600;letter-spacing:1px;
+      cursor:pointer;transition:opacity .2s;display:flex;align-items:center;
+      justify-content:center;gap:10px;text-transform:uppercase;
+    }
+    .btn-n:hover:not(:disabled){opacity:.82}
+    .btn-n:disabled{opacity:.4;cursor:not-allowed}
+
+    /* ── RODAPÉ ────────────────────────────────────────── */
+    .qft{
+      text-align:center;padding:20px 24px;font-size:11px;color:var(--cinza-t);
+      border-top:1px solid var(--cinza-b);letter-spacing:.5px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════ HERO ════════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-brand" aria-label="Feel Your Home">FYH &nbsp;·&nbsp; FEEL YOUR HOME</div>
+  <div class="hero-content">
+    <h1 class="hero-title">
+      A sua próxima casa já existe.<br>
+      <em>Falta perceber se está pronto<br>para avançar.</em>
+    </h1>
+    <p class="hero-sub">
+      Responda a 5 perguntas e descubra, em menos de 3 minutos, se a troca de casa é viável para si — e o que precisa de fazer para a concretizar com confiança.
+    </p>
+    <button class="hero-btn" onclick="iniciarQuiz()" aria-label="Iniciar simulador de troca de casa">
+      Descobrir o meu perfil &nbsp;→
+    </button>
+    <div class="hero-selos" role="list" aria-label="Garantias">
+      <span role="listitem">✦ Menos de 3 minutos</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span role="listitem">✦ Sem compromisso</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span role="listitem">✦ Resultado imediato</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ QUIZ ════════════════════ -->
+<div class="qw" id="qw">
+
+  <!-- Header sticky + barra progresso -->
+  <div class="qhd" id="qhd" role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1">
+    <div class="qhd-inner">
+      <span class="qhd-brand">FYH</span>
+      <span class="qhd-step" id="stepLbl">Passo 1 de 5</span>
+    </div>
+    <div class="prog-track">
+      <div class="prog-fill" id="pFill" style="width:20%"></div>
+    </div>
+  </div>
+
+  <!-- ─── PASSO 1 ────────────────────────────────── -->
+  <div class="step on" id="s1">
+    <h2 class="step-h">O que procura?</h2>
+    <p class="step-sub">Conte-nos sobre a casa que imagina para o seu próximo capítulo.</p>
+
+    <div class="cg">
+      <label class="lbl" id="l-tp">Tipo de imóvel</label>
+      <div class="cgrid" role="group" aria-labelledby="l-tp">
+        <div class="opc" data-g="tipo_procura" data-v="Apartamento" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">Apartamento</div>
+        <div class="opc" data-g="tipo_procura" data-v="Moradia" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">Moradia</div>
+      </div>
+      <span class="emsg" id="e-tipo_procura">Por favor selecione o tipo de imóvel.</span>
+    </div>
+
+    <div class="cg">
+      <label class="lbl" id="l-tipc">Tipologia pretendida</label>
+      <div class="cgrid c4" role="group" aria-labelledby="l-tipc">
+        <div class="opc" data-g="tipologia_procura" data-v="T1" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">T1</div>
+        <div class="opc" data-g="tipologia_procura" data-v="T2" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">T2</div>
+        <div class="opc" data-g="tipologia_procura" data-v="T3" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">T3</div>
+        <div class="opc" data-g="tipologia_procura" data-v="T4+" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">T4+</div>
+      </div>
+      <span class="emsg" id="e-tipologia_procura">Por favor selecione a tipologia.</span>
+    </div>
+
+    <div class="cg">
+      <label class="lbl" for="localizacao">Localização pretendida</label>
+      <input type="text" id="localizacao" class="inp" placeholder="Ex: Lisboa, Cascais, Porto…" autocomplete="off" aria-required="true">
+      <span class="emsg" id="e-localizacao">Por favor indique a localização pretendida.</span>
+    </div>
+
+    <div class="nav">
+      <button class="btn-n" onclick="next(1)">Continuar &nbsp;→</button>
+    </div>
+  </div>
+
+  <!-- ─── PASSO 2 ────────────────────────────────── -->
+  <div class="step" id="s2">
+    <h2 class="step-h">O que precisa de vender?</h2>
+    <p class="step-sub">Vamos perceber a sua situação atual para calcular a viabilidade real da troca.</p>
+
+    <div class="cg">
+      <label class="lbl" id="l-tv">Tipo de imóvel a vender</label>
+      <div class="cgrid" role="group" aria-labelledby="l-tv">
+        <div class="opc" data-g="tipo_venda" data-v="Apartamento" role="button" tabindex="0" onclick="pick(this);togV()" onkeydown="kp(event,this)">Apartamento</div>
+        <div class="opc" data-g="tipo_venda" data-v="Moradia" role="button" tabindex="0" onclick="pick(this);togV()" onkeydown="kp(event,this)">Moradia</div>
+        <div class="opc" data-g="tipo_venda" data-v="Terreno" role="button" tabindex="0" onclick="pick(this);togV()" onkeydown="kp(event,this)">Terreno</div>
+        <div class="opc" data-g="tipo_venda" data-v="Não preciso de vender" role="button" tabindex="0" onclick="pick(this);togV()" onkeydown="kp(event,this)">Não preciso de vender</div>
+      </div>
+      <span class="emsg" id="e-tipo_venda">Por favor selecione uma opção.</span>
+    </div>
+
+    <!-- Tipologia atual — ocultar se Terreno ou Não preciso de vender -->
+    <div id="g-ta">
+      <div class="cg">
+        <label class="lbl" id="l-ta">Tipologia atual</label>
+        <div class="cgrid c4" role="group" aria-labelledby="l-ta">
+          <div class="opc" data-g="tipologia_atual" data-v="T1" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">T1</div>
+          <div class="opc" data-g="tipologia_atual" data-v="T2" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">T2</div>
+          <div class="opc" data-g="tipologia_atual" data-v="T3" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">T3</div>
+          <div class="opc" data-g="tipologia_atual" data-v="T4+" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">T4+</div>
+        </div>
+        <span class="emsg" id="e-tipologia_atual">Por favor selecione a tipologia atual.</span>
+      </div>
+    </div>
+
+    <!-- Estado — ocultar apenas se "Não preciso de vender" -->
+    <div id="g-ei">
+      <div class="cg">
+        <label class="lbl" for="estado_imovel">Estado do imóvel</label>
+        <select id="estado_imovel" class="sfl" aria-required="true">
+          <option value="">Selecione o estado…</option>
+          <option value="Novo/recuperado">Novo / Recuperado</option>
+          <option value="Usado bom estado">Usado – Bom estado</option>
+          <option value="Precisa de obras">Precisa de obras</option>
+        </select>
+        <span class="emsg" id="e-estado_imovel">Por favor selecione o estado do imóvel.</span>
+      </div>
+    </div>
+
+    <!-- Zona atual — ocultar apenas se "Não preciso de vender" -->
+    <div id="g-za">
+      <div class="cg">
+        <label class="lbl" for="zona_atual">Zona do imóvel atual</label>
+        <input type="text" id="zona_atual" class="inp" placeholder="Ex: Braga, Sintra, Almada…" autocomplete="off" aria-required="true">
+        <span class="emsg" id="e-zona_atual">Por favor indique a zona do imóvel atual.</span>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="btn-b" onclick="prev(2)">← Voltar</button>
+      <button class="btn-n" onclick="next(2)">Continuar &nbsp;→</button>
+    </div>
+  </div>
+
+  <!-- ─── PASSO 3 ────────────────────────────────── -->
+  <div class="step" id="s3">
+    <h2 class="step-h">A sua margem de manobra</h2>
+    <p class="step-sub">Esta informação é confidencial e serve apenas para calcular a viabilidade real da sua troca.</p>
+
+    <div class="cg">
+      <label class="lbl" id="l-cr">Tem crédito habitação ativo?</label>
+      <div class="cgrid" role="group" aria-labelledby="l-cr">
+        <div class="opc" data-g="credito" data-v="Sim" role="button" tabindex="0" onclick="pick(this);togCD()" onkeydown="kp(event,this)">Sim</div>
+        <div class="opc" data-g="credito" data-v="Não" role="button" tabindex="0" onclick="pick(this);togCD()" onkeydown="kp(event,this)">Não</div>
+      </div>
+      <span class="emsg" id="e-credito">Por favor responda a esta pergunta.</span>
+    </div>
+
+    <!-- Capital em dívida — ocultar se Não -->
+    <div id="g-cd" class="hid">
+      <div class="cg">
+        <label class="lbl" for="capital_divida">Capital em dívida</label>
+        <select id="capital_divida" class="sfl">
+          <option value="">Selecione o valor…</option>
+          <option value="Menos de 50k">Menos de 50 000 €</option>
+          <option value="50k-100k">50 000 € – 100 000 €</option>
+          <option value="100k-200k">100 000 € – 200 000 €</option>
+          <option value="Mais de 200k">Mais de 200 000 €</option>
+        </select>
+        <span class="emsg" id="e-capital_divida">Por favor selecione o capital em dívida.</span>
+      </div>
+    </div>
+
+    <div class="cg">
+      <label class="lbl" id="l-cp">Capitais próprios disponíveis</label>
+      <div class="cgrid" role="group" aria-labelledby="l-cp">
+        <div class="opc" data-g="capitais_proprios" data-v="Nenhum" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">Nenhum</div>
+        <div class="opc" data-g="capitais_proprios" data-v="Até 20 000 €" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">Até 20 000 €</div>
+        <div class="opc" data-g="capitais_proprios" data-v="20 000 – 60 000 €" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">20 000 – 60 000 €</div>
+        <div class="opc" data-g="capitais_proprios" data-v="Mais de 60 000 €" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">Mais de 60 000 €</div>
+      </div>
+      <span class="emsg" id="e-capitais_proprios">Por favor selecione uma opção.</span>
+    </div>
+
+    <div class="nav">
+      <button class="btn-b" onclick="prev(3)">← Voltar</button>
+      <button class="btn-n" onclick="next(3)">Continuar &nbsp;→</button>
+    </div>
+  </div>
+
+  <!-- ─── PASSO 4 ────────────────────────────────── -->
+  <div class="step" id="s4">
+    <h2 class="step-h">Em quanto tempo quer concretizar?</h2>
+    <p class="step-sub">O horizonte temporal define qual é a estratégia ideal para a sua situação.</p>
+
+    <div class="cg">
+      <label class="lbl" id="l-pz">Prazo pretendido</label>
+      <div class="cgrid" role="group" aria-labelledby="l-pz">
+        <div class="opc" data-g="prazo" data-v="O mais rápido possível" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">O mais rápido possível</div>
+        <div class="opc" data-g="prazo" data-v="Menos de 3 meses" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">Menos de 3 meses</div>
+        <div class="opc" data-g="prazo" data-v="3 a 6 meses" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">3 a 6 meses</div>
+        <div class="opc" data-g="prazo" data-v="Mais de 6 meses" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">Mais de 6 meses</div>
+      </div>
+      <span class="emsg" id="e-prazo">Por favor selecione o prazo pretendido.</span>
+    </div>
+
+    <div class="cg">
+      <label class="lbl" id="l-mv">Principal motivo da mudança</label>
+      <div class="cgrid" role="group" aria-labelledby="l-mv">
+        <div class="opc" data-g="motivo" data-v="Família / Espaço" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">Família / Espaço</div>
+        <div class="opc" data-g="motivo" data-v="Mudança de zona" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">Mudança de zona</div>
+        <div class="opc" data-g="motivo" data-v="Upgrade de qualidade de vida" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">Upgrade de qualidade de vida</div>
+        <div class="opc" data-g="motivo" data-v="Razões financeiras" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">Razões financeiras</div>
+        <div class="opc sp" data-g="motivo" data-v="Outro" role="button" tabindex="0" onclick="pick(this)" onkeydown="kp(event,this)">Outro</div>
+      </div>
+      <span class="emsg" id="e-motivo">Por favor selecione o motivo principal.</span>
+    </div>
+
+    <div class="nav">
+      <button class="btn-b" onclick="prev(4)">← Voltar</button>
+      <button class="btn-n" onclick="next(4)">Continuar &nbsp;→</button>
+    </div>
+  </div>
+
+  <!-- ─── PASSO 5 ────────────────────────────────── -->
+  <div class="step" id="s5">
+    <h2 class="step-h">Quase lá.</h2>
+    <p class="step-sub">Introduza os seus dados para receber o seu resultado personalizado.</p>
+
+    <div class="cg">
+      <label class="lbl" for="nome">Nome completo</label>
+      <input type="text" id="nome" class="inp" placeholder="O seu nome" autocomplete="name" aria-required="true">
+      <span class="emsg" id="e-nome">Por favor indique o seu nome completo.</span>
+    </div>
+
+    <div class="cg">
+      <label class="lbl" for="tel">Telemóvel</label>
+      <input type="tel" id="tel" class="inp" placeholder="9XX XXX XXX" autocomplete="tel" aria-required="true">
+      <span class="emsg" id="e-tel">Por favor indique um telemóvel válido (mínimo 9 dígitos).</span>
+    </div>
+
+    <div class="cg">
+      <label class="lbl" for="email">E-mail</label>
+      <input type="email" id="email" class="inp" placeholder="o.seu@email.com" autocomplete="email" aria-required="true">
+      <span class="emsg" id="e-email">Por favor indique um e-mail válido.</span>
+    </div>
+
+    <div class="nav">
+      <button class="btn-b" onclick="prev(5)">← Voltar</button>
+      <button class="btn-n" id="btnS" onclick="finalizar()">Ver resultado &nbsp;→</button>
+    </div>
+  </div>
+
+  <footer class="qft">
+    © 2025 Feel Your Home &nbsp;·&nbsp; Os seus dados são tratados com total confidencialidade.
+  </footer>
+</div><!-- /qw -->
+
+<script>
+  /* ═══════════════════════════════════════════════════════
+     ESTADO GLOBAL
+  ═══════════════════════════════════════════════════════ */
+  var A = {
+    tipo_procura:'', tipologia_procura:'', localizacao:'',
+    tipo_venda:'', tipologia_atual:'', estado_imovel:'', zona_atual:'',
+    credito:'', capital_divida:'', capitais_proprios:'',
+    prazo:'', motivo:'',
+    nome:'', tel:'', email:''
+  };
+  var cur = 1, tot = 5;
+
+  /* ── INICIAR QUIZ ─────────────────────────────────── */
+  function iniciarQuiz() {
+    document.getElementById('hero').style.display = 'none';
+    document.getElementById('qw').classList.add('on');
+    window.scrollTo(0, 0);
+  }
+
+  /* ── HELPER getElementById ────────────────────────── */
+  function g(id) { return document.getElementById(id); }
+
+  /* ── SELECIONAR OPÇÃO (card-select) ──────────────── */
+  function pick(el) {
+    var grp = el.getAttribute('data-g');
+    var val = el.getAttribute('data-v');
+    document.querySelectorAll('[data-g="' + grp + '"]').forEach(function(c) {
+      c.classList.remove('sel');
+    });
+    el.classList.add('sel');
+    A[grp] = val;
+    clearE(grp);
+  }
+
+  function kp(e, el) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+  }
+
+  /* ── TOGGLE CAMPOS CONDICIONAIS P2 ───────────────── */
+  function togV() {
+    var v = A.tipo_venda;
+    var isTN = (v === 'Terreno' || v === 'Não preciso de vender');
+    var isNP = (v === 'Não preciso de vender');
+    // Tipologia atual: ocultar se Terreno OU Não preciso
+    g('g-ta').classList.toggle('hid', isTN);
+    // Estado e Zona: ocultar apenas se Não preciso
+    g('g-ei').classList.toggle('hid', isNP);
+    g('g-za').classList.toggle('hid', isNP);
+    // Limpar valores ocultos
+    if (isTN) {
+      document.querySelectorAll('[data-g="tipologia_atual"]').forEach(function(c) {
+        c.classList.remove('sel');
+      });
+      A.tipologia_atual = '';
+    }
+    if (isNP) {
+      g('estado_imovel').value = ''; A.estado_imovel = '';
+      g('zona_atual').value = '';  A.zona_atual = '';
+    }
+  }
+
+  /* ── TOGGLE CAPITAL EM DÍVIDA (P3) ───────────────── */
+  function togCD() {
+    var show = (A.credito === 'Sim');
+    g('g-cd').classList.toggle('hid', !show);
+    if (!show) { g('capital_divida').value = ''; A.capital_divida = ''; }
+  }
+
+  /* ── NAVEGAÇÃO ────────────────────────────────────── */
+  function next(n) { if (!valid(n)) return; capture(n); goTo(n + 1); }
+  function prev(n) { goTo(n - 1); }
+
+  function goTo(n) {
+    g('s' + cur).classList.remove('on');
+    cur = n;
+    g('s' + cur).classList.add('on');
+    updProg();
+    window.scrollTo(0, 0);
+  }
+
+  function updProg() {
+    g('pFill').style.width = (cur / tot * 100) + '%';
+    g('stepLbl').textContent = 'Passo ' + cur + ' de ' + tot;
+    g('qhd').setAttribute('aria-valuenow', cur);
+  }
+
+  /* ── CAPTURAR CAMPOS ──────────────────────────────── */
+  function capture(n) {
+    if (n === 1) { A.localizacao = g('localizacao').value.trim(); }
+    if (n === 2) {
+      if (A.tipo_venda !== 'Não preciso de vender') {
+        A.estado_imovel = g('estado_imovel').value;
+        A.zona_atual = g('zona_atual').value.trim();
+      }
+    }
+    if (n === 3) { if (A.credito === 'Sim') A.capital_divida = g('capital_divida').value; }
+    if (n === 5) {
+      A.nome  = g('nome').value.trim();
+      A.tel   = g('tel').value.trim();
+      A.email = g('email').value.trim();
+    }
+  }
+
+  /* ── VALIDAÇÃO POR PASSO ──────────────────────────── */
+  function valid(n) {
+    var ok = true;
+
+    if (n === 1) {
+      if (!A.tipo_procura)        { showEG('tipo_procura'); ok = false; }
+      if (!A.tipologia_procura)   { showEG('tipologia_procura'); ok = false; }
+      if (!g('localizacao').value.trim()) { showEI('localizacao'); ok = false; }
+    }
+
+    if (n === 2) {
+      if (!A.tipo_venda) { showEG('tipo_venda'); ok = false; }
+      var isTN = (A.tipo_venda === 'Terreno' || A.tipo_venda === 'Não preciso de vender');
+      var isNP = (A.tipo_venda === 'Não preciso de vender');
+      if (!isTN && !A.tipologia_atual)            { showEG('tipologia_atual'); ok = false; }
+      if (!isNP && !g('estado_imovel').value)     { showEI('estado_imovel'); ok = false; }
+      if (!isNP && !g('zona_atual').value.trim()) { showEI('zona_atual'); ok = false; }
+    }
+
+    if (n === 3) {
+      if (!A.credito) { showEG('credito'); ok = false; }
+      if (A.credito === 'Sim' && !g('capital_divida').value) {
+        showEI('capital_divida'); ok = false;
+      }
+      if (!A.capitais_proprios) { showEG('capitais_proprios'); ok = false; }
+    }
+
+    if (n === 4) {
+      if (!A.prazo)  { showEG('prazo'); ok = false; }
+      if (!A.motivo) { showEG('motivo'); ok = false; }
+    }
+
+    if (n === 5) {
+      if (!g('nome').value.trim())                             { showEI('nome'); ok = false; }
+      if ((g('tel').value.replace(/\D/g, '')).length < 9)     { showEI('tel'); ok = false; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(g('email').value.trim())) { showEI('email'); ok = false; }
+    }
+
+    return ok;
+  }
+
+  function showEG(grp) { var e = g('e-' + grp); if (e) e.classList.add('on'); }
+  function showEI(id)  {
+    var e = g('e-' + id); if (e) e.classList.add('on');
+    var i = g(id); if (i) i.classList.add('er');
+  }
+  function clearE(grp) { var e = g('e-' + grp); if (e) e.classList.remove('on'); }
+
+  /* Limpar erros ao editar */
+  ['localizacao','zona_atual','nome','tel','email'].forEach(function(id) {
+    var el = g(id);
+    if (el) el.addEventListener('input', function() {
+      this.classList.remove('er');
+      var e = g('e-' + id); if (e) e.classList.remove('on');
+    });
+  });
+  ['estado_imovel','capital_divida'].forEach(function(id) {
+    var el = g(id);
+    if (el) el.addEventListener('change', function() {
+      this.classList.remove('er');
+      var e = g('e-' + id); if (e) e.classList.remove('on');
+    });
+  });
+
+  /* ── NORMALIZAR TELEMÓVEL (E.164) ────────────────── */
+  function normTel(v) {
+    var d = (v || '').replace(/\D/g, '');
+    if (!d) return '';
+    if (d.indexOf('00') === 0) d = d.slice(2);  // 00351… → 351…
+    if (d.length === 9) d = '351' + d;            // nº local → com indicativo
+    return '+' + d;                               // E.164
+  }
+
+  /* ── CALCULAR SCORE (base 5, limitar 0-10) ────────── */
+  function calcScore() {
+    var s = 5;
+    // Capitais próprios
+    if      (A.capitais_proprios === 'Nenhum')          s -= 1;
+    else if (A.capitais_proprios === '20 000 – 60 000 €') s += 1;
+    else if (A.capitais_proprios === 'Mais de 60 000 €')  s += 2;
+    // Sem crédito (imóvel pago)
+    if (A.credito === 'Não') s += 1;
+    // Prazo
+    if      (A.prazo === 'O mais rápido possível') s -= 1;
+    else if (A.prazo === '3 a 6 meses')            s += 1;
+    else if (A.prazo === 'Mais de 6 meses')        s += 1;
+    // Não precisa de vender
+    if (A.tipo_venda === 'Não preciso de vender')  s += 1;
+    // Tipo procurado == tipo a vender
+    if (A.tipo_procura && A.tipo_venda &&
+        A.tipo_venda !== 'Terreno' &&
+        A.tipo_venda !== 'Não preciso de vender' &&
+        A.tipo_procura === A.tipo_venda) s += 0.5;
+    // Capital em dívida > 200k
+    if (A.capital_divida === 'Mais de 200k') s -= 1;
+
+    return Math.min(10, Math.max(0, s));
+  }
+
+  /* ── ENVIAR WEBHOOK GHL ───────────────────────────── */
+  function enviarWebhook(tel, first, last, sc, eid) {
+    try {
+      fetch('WEBHOOK_URL_FYH', {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        keepalive: true,
+        body: JSON.stringify({
+          /* Chaves padrão GHL */
+          name:       A.nome,
+          first_name: first,
+          last_name:  last,
+          phone:      tel,
+          email:      A.email,
+          /* Metadados */
+          timestamp:          new Date().toISOString(),
+          origem:             'Feel Your Home — Simulador Troca de Casa',
+          pagina_url:         window.location.href,
+          event_id:           eid,
+          score_viabilidade:  Number(sc.toFixed(1)),
+          /* Respostas com rótulos legíveis */
+          procura_tipo:       A.tipo_procura,
+          procura_tipologia:  A.tipologia_procura,
+          procura_localizacao:A.localizacao,
+          vende_tipo:         A.tipo_venda,
+          vende_tipologia:    A.tipologia_atual  || 'N/A',
+          vende_estado:       A.estado_imovel    || 'N/A',
+          vende_zona:         A.zona_atual       || 'N/A',
+          credito_habitacao:  A.credito,
+          capital_divida:     A.capital_divida   || 'N/A',
+          capitais_proprios:  A.capitais_proprios,
+          prazo:              A.prazo,
+          motivo:             A.motivo,
+          /* Cópia bruta para depuração */
+          raw: Object.assign({}, A)
+        })
+      });
+    } catch (e) { /* falha silenciosa — keepalive garante envio mesmo com redirect */ }
+  }
+
+  /* ════════════════════════════════════════════════════
+     finalizar() — ORDEM E TEMPOS EXATOS (BLOCO 3)
+     NÃO alterar a sequência nem juntar pixel + redirect
+  ════════════════════════════════════════════════════ */
+  function finalizar() {
+    if (!valid(5)) return;
+    capture(5);
+
+    /* Desativar botão — evita duplo clique / duplo lead */
+    var btn = g('btnS');
+    btn.disabled = true;
+    btn.textContent = 'A processar…';
+
+    var sc    = calcScore();
+    var tel   = normTel(A.tel);
+    var pts   = (A.nome || '').trim().split(/\s+/);
+    var first = pts[0] || '';
+    var last  = pts.slice(1).join(' ') || '';
+    var eid   = 'lead-fyh-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+
+    /* 1) Guarda dados PRIMEIRO — resultado.html vai ler */
+    try {
+      sessionStorage.setItem('sim_fyh', JSON.stringify({ A: A, score: sc }));
+    } catch (e) {}
+
+    /* 2) Advanced Matching antes do evento (melhora qualidade de correspondência) */
+    if (typeof fbq === 'function') {
+      fbq('init', 'PIXEL_ID_FYH', { em: A.email, ph: tel, fn: first, ln: last });
+    }
+
+    /* 3) Dispara Lead UMA vez, com eventID (dedup futura com CAPI) */
+    if (typeof fbq === 'function') {
+      fbq('track', 'Lead', {
+        content_name:     'Simulador Troca de Casa',
+        content_category: 'Imobiliário',
+        value:            Number(sc.toFixed(1)),
+        currency:         'EUR'
+      }, { eventID: eid });
+    }
+
+    /* 4) Envia lead para GHL (keepalive sobrevive ao redirect) */
+    enviarWebhook(tel, first, last, sc, eid);
+
+    /* 5) SÓ redireciona DEPOIS de dar tempo ao pixel para enviar o beacon.
+          Sem este atraso, window.location cancela o evento do Meta. */
+    var done = false;
+    var go = function () { if (done) return; done = true; window.location.href = 'resultado.html'; };
+    setTimeout(go, 800);
+  }
+</script>
+</body>
+</html>
